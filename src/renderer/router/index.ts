@@ -20,7 +20,7 @@ export default createRouter({
         {
             path: '/discover/AStarDemo',
             name: 'AStarDemo',
-            component: require('@/page/discover/AStarDemo').default,
+            component: require('@/page/discover/cmdwar/AStarDemo').default,
         },
         {
             path: '/message',

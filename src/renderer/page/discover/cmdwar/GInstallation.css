@@ -1,0 +1,45 @@
+
+.installation {
+  width: 100px;
+  height: 100px;
+  /* background: #2a7a42dd; */
+  position: fixed;
+}
+
+/**player unit born point */
+.installation.born_point {
+  width: 60px;
+  height: 60px;
+  background: url(/static/game/unit_born_point.png) no-repeat;
+  background-size: 100% 100%;
+  margin: 18px 50px;
+}
+
+.installation.maintain_area {
+  width: 96px;
+  height: 96px;
+  background: url(/static/game/maintain_area.png) no-repeat;
+  background-size: 100% 100%;
+  margin: 10px 40px;
+}
+
+.installation.maintain_area {
+  width: 64px;
+  height: 64px;
+  background: url(/static/game/maintain_area.png) no-repeat;
+  background-size: 100% 100%;
+  margin-top: 544px;
+  margin-left: 550px;
+}
+
+.installation.safe_area {
+  width: 64px;
+  height: 64px;
+  background: url(/static/game/safe_area.png) no-repeat;
+  background-size: 100% 100%;
+  margin-left: 400px;
+}
+
+.installation.safe_area.active {
+  background-color: #ff703f;
+}

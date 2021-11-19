@@ -18,8 +18,13 @@ yarn build
 
 ```
 
-### 接入指南
-> 您的应用需对网络请求框架做一个简单改造，在所有需要接入AppMock的请求URL的Host的替换为AppMock提供的Host，同时将需代理请求的Header中添加
+### 游戏开发计划
+
++ #### tank
+    + 框选多个单位并控制移动；
+    + 碰撞检测逻辑；
+    + 游戏战斗场景主循环
+    + 数据同步
 
 ``` javascript
 req.headers['mock-host'] = origin_host;

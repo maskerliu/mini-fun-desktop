@@ -1,0 +1,356 @@
+.unit {
+  width: 60px;
+  height: 60px;
+  position: fixed;
+  /* background: rgba(45, 56, 54, 0.623); */
+  margin: -14px;
+}
+
+.unit_hp_bar {
+  width: 40px;
+  height: 4px;
+  position: relative;
+  border: 2px solid lightgray;
+  border-radius: 4px;
+  margin: 0 3px;
+  background: rgb(58, 57, 57);
+}
+
+.unit_hp_bar.hp {
+  width: 50%;
+  height: 4px;
+  background: #d82727;
+  border: 0px solid lightgray;
+  margin: 0;
+}
+
+.unit_selected {
+  width: 36px;
+  height: 36px;
+  position: absolute;
+  border: 2px dashed rgb(27, 224, 27);
+  border-radius: 50%;
+  top: 10px;
+  left: 10px;
+  /* animation: rotate_cycle 4.5s linear infinite; */
+}
+
+.unit_range {
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  border: 1px dashed rgba(43, 252, 43, 0.868);
+  border-radius: 50%;
+  top: -50px;
+  left: -50px;
+  pointer-events: none;
+  /* animation: blink 1.5s ease-in-out infinite; */
+}
+
+.unit_profile {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  /* background: rgba(204, 85, 29, 0.848); */
+  top: 30px;
+  left: 30px;
+  zoom: 0.3;
+}
+
+.unit_profile.scan {
+  width: 0;
+  height: 0;
+  border-left: 70px solid transparent;
+  border-right: 70px solid transparent;
+  border-top: 100px solid rgba(0, 255, 55, 0.25);
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  position: absolute;
+  animation: rotate_scan 1.5s linear infinite;
+  transform-origin: 50% 100%;
+  top: -81px;
+  left: -53px;
+  pointer-events: none;
+}
+
+.unit_profile.plane {
+  width: 50px;
+  height: 50px;
+  top: -5px;
+  left: -5px;
+  background-color: #abd1ffdd;
+  background: #abd1ffdd;
+  background-size: 100%;
+}
+
+.unit_profile.plane:before {
+  content: "";
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #abd1ffdd;
+  background-size: 100%;
+}
+
+.unit_profile.missile_0 {
+  width: 25px;
+  height: 25px;
+  top: -3px;
+  left: 30px;
+  background: url(/static/game/missile_0.png) no-repeat;
+  background-size: 100% 100%;
+  animation: missile 1.6s both 0s ease infinite;
+}
+
+.unit_profile.missile_1 {
+  width: 25px;
+  height: 25px;
+  top: 18px;
+  left: 30px;
+  background: url(/static/game/missile_0.png) no-repeat;
+  background-size: 100% 100%;
+  animation: missile 1.6s both 0s ease infinite;
+}
+
+.unit_profile.bullet {
+  width: 14px;
+  height: 8px;
+  top: 16px;
+  left: 35px;
+  background: url(/static/game/bullet_green.png) no-repeat;
+  background-size: 100% 100%;
+  animation: bullet 0.6s both 0s ease-out infinite;
+}
+
+@keyframes rotate_scan {
+  0% {
+    transform: rotate(45deg);
+  }
+
+  50% {
+    transform: rotate(135deg);
+  }
+
+  100% {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes rotate_cycle {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  50% {
+    transform: rotate(180deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shock {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 0.5;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes bullet {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(70px, 0px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes missile {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(120px, 0px);
+    opacity: 0.3;
+  }
+}
+
+.unit_sprite {
+  background-image: url(/static/cmdwar/player_units.png);
+  background-repeat: no-repeat;
+  display: block;
+}
+
+.medical_0 {
+  width: 100px;
+  height: 100px;
+  background-position: -5px -5px;
+}
+
+.medical_1 {
+  width: 100px;
+  height: 100px;
+  background-position: -115px -5px;
+}
+
+.medical_2 {
+  width: 100px;
+  height: 100px;
+  background-position: -225px -5px;
+}
+
+.medical_3 {
+  width: 100px;
+  height: 100px;
+  background-position: -335px -5px;
+}
+
+.plane_heavy {
+  width: 100px;
+  height: 100px;
+  background-position: -5px -115px;
+}
+
+.plane_heavy_shadow {
+  width: 100px;
+  height: 100px;
+  background-position: -115px -115px;
+}
+
+.plane_light {
+  width: 100px;
+  height: 100px;
+  background-position: -225px -115px;
+}
+
+.plane_light_shadow {
+  width: 100px;
+  height: 100px;
+  background-position: -335px -115px;
+}
+
+.soldier_0 {
+  width: 50px;
+  height: 50px;
+  background-position: -5px -225px;
+}
+
+.soldier_1 {
+  width: 50px;
+  height: 50px;
+  background-position: -65px -225px;
+}
+
+.soldier_2 {
+  width: 50px;
+  height: 50px;
+  background-position: -125px -225px;
+}
+
+.soldier_3 {
+  width: 50px;
+  height: 50px;
+  background-position: -185px -225px;
+}
+
+.soldier_4 {
+  width: 50px;
+  height: 50px;
+  background-position: -245px -225px;
+}
+
+.soldier_5 {
+  width: 50px;
+  height: 50px;
+  background-position: -305px -225px;
+}
+
+.soldier_6 {
+  width: 50px;
+  height: 50px;
+  background-position: -365px -225px;
+}
+
+.soldier_7 {
+  width: 50px;
+  height: 50px;
+  background-position: -5px -285px;
+}
+
+.soldier_8 {
+  width: 50px;
+  height: 50px;
+  background-position: -65px -285px;
+}
+
+.tank_0 {
+  width: 100px;
+  height: 100px;
+  background-position: -125px -285px;
+}
+
+.tank_1 {
+  width: 100px;
+  height: 100px;
+  background-position: -235px -285px;
+}
+
+.tank_2 {
+  width: 100px;
+  height: 100px;
+  background-position: -345px -285px;
+}
+
+.tank_3 {
+  width: 100px;
+  height: 100px;
+  background-position: -445px -5px;
+}
+
+.tank_beige_large {
+  width: 100px;
+  height: 100px;
+  background-position: -445px -115px;
+}
+
+.tank_green_large {
+  width: 100px;
+  height: 100px;
+  background-position: -455px -225px;
+}

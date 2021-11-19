@@ -1,0 +1,771 @@
+<template>
+  <van-row class="full-row">
+    <van-col class="battle_sence_settings" span="5">
+      <i class="sprite sprite-barrel_0" style="transform: scale(0.5, 0.5)"></i>
+      <van-button
+        plain
+        size="small"
+        @click="onExpand"
+        style="position: fixed"
+      ></van-button>
+      <van-button
+        plain
+        size="small"
+        @click="onGenerateMapClicked"
+        style="width: 100%"
+      >
+        Generate New Map
+      </van-button>
+      <br />
+      <br />
+      <br />
+      <fieldset>
+        <legend>Map:</legend>
+        <van-field
+          v-model="mapTileWidth"
+          label="tile width"
+          placeholder="input number"
+          input-align="right"
+        />
+        <br />
+        <van-field
+          v-model="mapTileHeight"
+          label="tile height"
+          placeholder="input number"
+          input-align="right"
+        />
+        <br />
+        <van-field
+          v-model="mapRow"
+          label="map row"
+          placeholder="input number"
+          input-align="right"
+        />
+        <br />
+        <van-field
+          v-model="mapCol"
+          label="map col"
+          placeholder="input number"
+          input-align="right"
+        />
+      </fieldset>
+      <br />
+      <fieldset>
+        <legend>Wall density:</legend>
+        <br />
+        <van-slider
+          v-model="wallDensity"
+          :step="0.5"
+          max="10"
+          min="2.5"
+          bar-height="8"
+          button-size="20"
+          style="width: 230px; padding: 10px"
+        />
+        <br />
+      </fieldset>
+      <br />
+      <van-checkbox v-model="checkShowGrid" shape="square">
+        Show map grid?
+      </van-checkbox>
+      <br />
+      <van-checkbox v-model="checkDebug" shape="square">
+        Show debug info?
+      </van-checkbox>
+      <br />
+      <van-checkbox v-model="checkShowPath" shape="square">
+        Show search path?
+      </van-checkbox>
+      <br />
+      <van-checkbox v-model="searchDiagonal" shape="square">
+        Allow diagonal movement?
+      </van-checkbox>
+      <br />
+      <van-checkbox v-model="checkClosest" shape="square">
+        Closest node if target unreachable?
+      </van-checkbox>
+      <br />
+      <van-checkbox v-model="generateWeights" shape="square">
+        Add random weights?
+      </van-checkbox>
+      <br />
+      <van-checkbox v-model="displayWeights" shape="square">
+        Display weight values?
+      </van-checkbox>
+      <br />
+      <fieldset>
+        <legend>Weight:</legend>
+        <van-cell center title="开启多weight模式">
+          <template #right-icon>
+            <van-switch v-model="checkMultiWeight" size="20" />
+          </template>
+        </van-cell>
+        <br />
+        <div class="weight_setting_row">
+          <span class="grid_item weight1"></span>
+          Weight of 1
+        </div>
+        <br />
+        <div class="weight_setting_row">
+          <span class="grid_item weight3" id="keyWeight3"></span>
+          Weight of 3
+        </div>
+        <br />
+        <div class="weight_setting_row">
+          <span class="grid_item weight5"></span>
+          Weight of 5
+        </div>
+        <br />
+        <div class="weight_setting_row">
+          <span class="grid_item wall" id="keyWall"></span>
+          Wall (imapassable)
+        </div>
+      </fieldset>
+      <br />
+    </van-col>
+    <van-col class="battle_sence" span="19" @mousedown="onMouseDown">
+      <div
+        class="player"
+        v-for="(player, idx) in players"
+        :key="idx"
+        :id="player.id"
+      >
+        <div v-bind:class="[{ 'player selected': player.isSelected }]"></div>
+
+        <div class="player_profile">
+          <!-- <span class="player_profile scan"></span> -->
+          <div
+            class="player_profile"
+            v-bind:class="[
+              { plane: player.type.indexOf('plane') >= 0 },
+              {
+                tank:
+                  player.type.indexOf('tank') >= 0 ||
+                  player.type.indexOf('medical') >= 0,
+              },
+              { human: player.type.indexOf('human') >= 0 },
+            ]"
+            v-bind:style="{
+              background: `url(/static/game/${player.type}.png) no-repeat`,
+              'background-size': '100% 100%',
+            }"
+          ></div>
+          <!-- <span
+            class="player_profile bullet"
+            v-bind:style="{
+              background: `url(/static/game/bullet_${player.type
+                .split('_')
+                .pop()}.png) no-repeat`,
+              'background-size': '100% 100%',
+            }"
+            v-if="player.type.indexOf('tank') >= 0"
+          ></span> -->
+          <!-- <span
+            class="player_profile missile_0"
+            v-if="player.type.indexOf('plane_heavy') >= 0"
+          ></span>
+          <span
+            class="player_profile missile_1"
+            v-if="player.type.indexOf('plane_heavy') >= 0"
+          ></span> -->
+          <!-- <span
+            class="player_profile range"
+            v-if="player.type.indexOf('medical') >= 0"
+          ></span> -->
+          <!-- <span class="player_profile smoke"></span>
+          <span class="player_profile smoke1"></span>
+          <span class="player_profile smoke2"></span> -->
+        </div>
+        <div class="player hp_bar">
+          <div class="player hp_bar hp"></div>
+        </div>
+      </div>
+
+      <!-- <div class="player" style="top: 508px; left: 501px">
+        <div class="player hp-bar">
+          <div class="player hp-bar hp"></div>
+        </div>
+        <br />
+
+        <div class="player_profile">
+          <span class="player_profile scan"></span>
+          <span
+            class="player_profile avatar"
+            v-bind:style="{
+              'border-color': 'green',
+              'border-right-color': 'transparent',
+            }"
+          ></span>
+          <span
+            class="player_profile avatar"
+            v-bind:style="{
+              'border-color': 'green',
+              'border-right-color': 'transparent',
+            }"
+          ></span>
+        </div>
+      </div> -->
+      <!-- <span class="grid_item yin-yang"></span> -->
+      <!-- <span class="pacman space-invader"></span> -->
+      <!-- <div class="war-fog" ref="warFog"></div> -->
+      <div class="clear" v-for="(row, idx) in gMap.mapInfo" :key="idx">
+        <span
+          v-for="(item, idy) in row"
+          :key="idy"
+          class="grid_item"
+          v-bind:style="{
+            width: `${mapTileWidth - 2}px`,
+            height: `${mapTileHeight - 2}px`,
+            'border-color': checkShowGrid ? 'lightgray' : 'transparent',
+            background:
+              item < 0
+                ? `url(/static/game/${gMap.mapStyles[idx][idy]}.png) no-repeat`
+                : 'transparent',
+            'background-size': 'auto 100%',
+            'background-position': 'center',
+          }"
+          v-bind:class="[
+            {
+              weight1: item === 1,
+              weight3: item === 3,
+              weight5: item === 5,
+            },
+          ]"
+        >
+          {{ checkDebug ? item : "" }}
+        </span>
+      </div>
+      <div
+        class="battle_sence mask"
+        v-bind:style="{
+          width: mask_width(),
+          height: mask_height(),
+          top: mask_top(),
+          left: mask_left(),
+        }"
+        v-show="is_show_mask"
+      ></div>
+    </van-col>
+  </van-row>
+</template>
+
+<script lang="ts" src="./AStarDemo.vue.ts"></script>
+<style scoped>
+fieldset {
+  border: lightgrey dashed 1px;
+}
+.battle_sence_settings {
+  height: 100%;
+  padding: 10px;
+  font-size: 0.8rem;
+  overflow: auto;
+}
+
+.weight_setting_row {
+  height: 20px;
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.clear:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.war-fog {
+  pointer-events: none;
+  position: absolute;
+  top: 160px;
+  left: 60px;
+  background: transparent;
+  border: 100px solid transparent;
+  border-radius: 50%;
+  box-shadow: 200px 100px 10px 420px #3a3939c4;
+}
+
+.battle_sence {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+  background: url(/static/game/ground_0.png);
+}
+
+.battle_sence.mask {
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  background: #bababbbb;
+  border: 2px solid lightgreen;
+  border-radius: 2px;
+  opacity: 0.4;
+}
+
+.grid_item {
+  width: 16px;
+  height: 16px;
+  display: block;
+  border: 1px solid lightgray;
+  float: left;
+  line-height: 30px;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+  color: white;
+}
+.grid_item.weight1 {
+  background-color: #ffffff00;
+}
+.grid_item.weight3 {
+  background-color: #c0d1e4;
+}
+.grid_item.weight5 {
+  background-color: #abd1ff;
+}
+.grid_item.start {
+  background-color: #ff703f;
+}
+.grid_item.dest {
+  background-color: #2a7a42;
+}
+.grid_item.road {
+  background-color: #f5d02f;
+}
+/* .grid_item:hover {
+  background: transparent;
+  position: relative;
+  cursor: pointer;
+}
+.grid_item:hover::before {
+  content: "";
+  width: 2px;
+  height: 50%;
+  background: red;
+  position: absolute;
+  top: 25%;
+  left: calc(50% - 2px);
+  border-radius: 1px;
+}
+.grid_item:hover:after {
+  content: "";
+  width: 50%;
+  height: 2px;
+  background: red;
+  position: absolute;
+  border-radius: 1px;
+  top: calc(50% - 1px);
+  left: calc(25% - 1px);
+} */
+.grid_item.yin-yang {
+  width: 52px;
+  height: 26px;
+  background: #eee;
+  border-color: grey;
+  border-style: solid;
+  border-width: 2px 2px 26px 2px;
+  border-radius: 100%;
+  position: absolute;
+  animation: flash_blink 3s linear infinite;
+  right: 50px;
+}
+.grid_item.yin-yang:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0px;
+  background: #eee;
+  border: 10px solid grey;
+  border-radius: 100%;
+  width: 6px;
+  height: 6px;
+}
+.grid_item.yin-yang:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background: grey;
+  border: 10px solid #eee;
+  border-radius: 100%;
+  width: 6px;
+  height: 6px;
+}
+
+.player {
+  width: 50px;
+  height: 50px;
+  position: fixed;
+  /* background: rgba(45, 56, 54, 0.623); */
+  margin: -10px;
+}
+
+.player.hp_bar {
+  width: 40px;
+  height: 4px;
+  position: relative;
+  border: 2px solid lightgray;
+  border-radius: 4px;
+  margin: 0 3px;
+  background: rgb(58, 57, 57);
+}
+.player.hp_bar.hp {
+  width: 50%;
+  height: 4px;
+  background: #d82727;
+  border: 0px solid lightgray;
+  margin: 0;
+}
+.player.selected {
+  width: 30px;
+  height: 30px;
+  position: fixed;
+  border: 2px dashed rgb(27, 224, 27);
+  border-radius: 50%;
+  margin: 8px 8px;
+  animation: rotate_cycle 4.5s linear infinite;
+}
+.player_profile {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  margin: 0;
+  /* background: rgba(204, 85, 29, 0.548); */
+  top: 5px;
+  left: 5px;
+}
+
+.player_profile.range {
+  width: 160px;
+  height: 160px;
+  position: absolute;
+  border: 2px dashed lightgreen;
+  border-radius: 50%;
+  top: -60px;
+  left: -60px;
+  pointer-events: none;
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+.player_profile.scan {
+  width: 0;
+  height: 0;
+  border-left: 70px solid transparent;
+  border-right: 70px solid transparent;
+  border-top: 100px solid rgba(0, 255, 55, 0.25);
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  position: absolute;
+  animation: rotate_scan 1.5s linear infinite;
+  transform-origin: 50% 100%;
+  top: -81px;
+  left: -53px;
+  pointer-events: none;
+}
+
+.player_profile.avatar {
+  width: 0px;
+  height: 0px;
+  border: 10px solid;
+  border-color: rgb(231, 209, 9);
+  border-right: 10px solid transparent;
+  border-right-color: transparent;
+  border-radius: 50%;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+.player_profile.avatar:nth-child(3) {
+  animation: rotate_up 0.5s infinite;
+}
+.player_profile.avatar:nth-child(4) {
+  animation: rotate_down 0.5s infinite;
+}
+
+.player_profile.human {
+  width: 30px;
+  height: 30px;
+  background: url(/static/game/tank_green.png) no-repeat;
+  background-size: 100%;
+  animation: shock 0.4s infinite;
+}
+
+.player_profile.tank {
+  width: 30px;
+  height: 30px;
+  background: url(/static/game/tank_green.png) no-repeat;
+  background-size: 100%;
+  animation: shock 0.4s infinite;
+}
+
+/* .player_profile.tank:after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  top: 15px;
+  left: -5px;
+  background: url(/static/game/smoke_white.png) no-repeat;
+  background-size: 100% 100%;
+  animation: smoke 0.6s both 0s ease-in infinite;
+} */
+
+.player_profile.plane {
+  width: 50px;
+  height: 50px;
+  top: -5px;
+  left: -5px;
+  background-color: #abd1ffdd;
+  background: url(/static/game/plane_heavy.png) no-repeat;
+  background-size: 100%;
+}
+.player_profile.plane:after {
+  content: "";
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  top: 40px;
+  left: 20px;
+  background: url(/static/game/plane_heavy_shadow.png) no-repeat;
+  background-size: 100%;
+}
+
+.player_profile.missile_0 {
+  width: 25px;
+  height: 25px;
+  top: -3px;
+  left: 30px;
+  background: url(/static/game/missile_0.png) no-repeat;
+  background-size: 100% 100%;
+  animation: missile 1.6s both 0s ease infinite;
+}
+.player_profile.missile_1 {
+  width: 25px;
+  height: 25px;
+  top: 18px;
+  left: 30px;
+  background: url(/static/game/missile_0.png) no-repeat;
+  background-size: 100% 100%;
+  animation: missile 1.6s both 0s ease infinite;
+}
+
+.player_profile.bullet {
+  width: 14px;
+  height: 8px;
+  top: 16px;
+  left: 35px;
+  background: url(/static/game/bullet_green.png) no-repeat;
+  background-size: 100% 100%;
+  animation: bullet 0.6s both 0s ease-out infinite;
+}
+
+.player_profile.smoke {
+  width: 8px;
+  height: 8px;
+  top: 15px;
+  left: -1px;
+  background: url(/static/game/smoke_white.png) no-repeat;
+  background-size: 100% 100%;
+  animation: smoke 0.6s both 0s ease-out infinite;
+}
+
+.player_profile.smoke1 {
+  width: 8px;
+  height: 8px;
+  top: 11px;
+  left: 0px;
+  background: url(/static/game/smoke_white.png) no-repeat;
+  background-size: 100% 100%;
+  animation: smoke1 0.6s both 0s linear infinite;
+}
+
+.player_profile.smoke2 {
+  width: 8px;
+  height: 8px;
+  top: 16px;
+  left: 5px;
+  background: url(/static/game/smoke_white.png) no-repeat;
+  background-size: 100% 100%;
+  animation: smoke2 0.6s both 0s linear infinite;
+}
+
+@keyframes rotate_up {
+  0% {
+    transform: rotate(-90deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-90deg);
+  }
+}
+@keyframes rotate_down {
+  0% {
+    transform: rotate(90deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(90deg);
+  }
+}
+@keyframes rotate_scan {
+  0% {
+    transform: rotate(45deg);
+  }
+  50% {
+    transform: rotate(135deg);
+  }
+  100% {
+    transform: rotate(45deg);
+  }
+}
+@keyframes rotate_cycle {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shock {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0.9);
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes flash_blink {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  25% {
+    opacity: 0.5;
+    transform: rotate(90deg);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(180deg);
+  }
+  75% {
+    opacity: 0.5;
+    transform: rotate(270deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes smoke {
+  from {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-30px, 0px) scale(2.5);
+    opacity: 0.3;
+  }
+}
+@keyframes smoke1 {
+  from {
+    transform: translate(5, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-20px, 0px) scale(2);
+    opacity: 0.3;
+  }
+}
+@keyframes smoke2 {
+  from {
+    transform: translate(10, 0) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-10px, 0px) scale(1.5);
+    opacity: 0.3;
+  }
+}
+
+@keyframes bullet {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(70px, 0px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes missile {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(120px, 0px);
+    opacity: 0.3;
+  }
+}
+
+.egg {
+  display: block;
+  width: 126px;
+  height: 180px;
+  background-color: red;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}
+
+.pacman.space-invader {
+  box-shadow: 0 0 0 1em red, 0 1em 0 1em red, -2.5em 1.5em 0 0.5em red,
+    2.5em 1.5em 0 0.5em red, -3em -3em 0 0 red, 3em -3em 0 0 red,
+    -2em -2em 0 0 red, 2em -2em 0 0 red, -3em -1em 0 0 red, -2em -1em 0 0 red,
+    2em -1em 0 0 red, 3em -1em 0 0 red, -4em 0 0 0 red, -3em 0 0 0 red,
+    3em 0 0 0 red, 4em 0 0 0 red, -5em 1em 0 0 red, -4em 1em 0 0 red,
+    4em 1em 0 0 red, 5em 1em 0 0 red, -5em 2em 0 0 red, 5em 2em 0 0 red,
+    -5em 3em 0 0 red, -3em 3em 0 0 red, 3em 3em 0 0 red, 5em 3em 0 0 red,
+    -2em 4em 0 0 red, -1em 4em 0 0 red, 1em 4em 0 0 red, 2em 4em 0 0 red;
+
+  position: absolute;
+  background: red;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  margin: 50px 0 70px 65px;
+  top: 100px;
+  right: 80px;
+}
+</style>

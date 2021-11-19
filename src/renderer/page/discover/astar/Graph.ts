@@ -12,7 +12,7 @@ export class GridNode {
   closed: boolean = false;
   parent: GridNode = null;
 
-  public constructor(x: number, y: number, weight: number) {
+  public constructor(x: number, y: number, weight?: number) {
     this.x = x;
     this.y = y;
     this.weight = weight;
@@ -26,7 +26,7 @@ export class GridNode {
   }
 
   public isWall(): boolean {
-    return this.weight === 0;
+    return this.weight <= 0;
   }
 
   public equal(node: GridNode): boolean {
